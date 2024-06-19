@@ -3,11 +3,11 @@
 import spidev
 import time
 import sys
-import RPi.GPIO as GPIO
+import gpiod
 
-GPIO.setmode(GPIO.BCM)
+chip = gpiod.Chip('gpiochip4')
 led_pin = 5
-GPIO.setup(led_pin, GPIO.OUT)
+led_line = chip.get_line(led_pin)
 
 
 
@@ -24,10 +24,9 @@ try:
         while True:
             value = readadc(0)
             if(value<500):
-                GPIO.output(led_pin, GPIO.HIGH)
+                led_line.set_value(1)
             else:
-                GPIO.output(led_pin, GPIO.LOW)
+                led_line.set_value(0)
 
-except KeyboardInterrupt:
-        GPIO.cleanup()
-    
+finally:
+    led_line.release()

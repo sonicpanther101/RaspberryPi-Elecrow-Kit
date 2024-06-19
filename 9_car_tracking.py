@@ -1,28 +1,31 @@
 # car tracking
 
-import RPi.GPIO as GPIO
+import gpiod
 import time
 
 
-GPIO.setmode(GPIO.BCM)
+chip = gpiod.Chip('gpiochip4')
 ir_pin = 4
 green_pin = 5
 red_pin = 6
 
-GPIO.setup(ir_pin, GPIO.IN)
-GPIO.setup(green_pin, GPIO.OUT)
-GPIO.setup(red_pin, GPIO.OUT)
+ir_line = chip.get_line(ir_pin)
+green_line = chip.get_line(green_pin)
+red_line = chip.get_line(red_pin)
+
 
 try:
     while True:
-        if(GPIO.input(ir_pin) == 1):
-            GPIO.output(green_pin, GPIO.HIGH)
-            GPIO.output(red_pin, GPIO.LOW)
+        if ir_line.get_value() == 1:
+            green_line.set_value(1)
+            red_line.set_value(0)
             print("on track")
 
         else:
-            GPIO.output(green_pin, GPIO.LOW)
-            GPIO.output(red_pin, GPIO.HIGH)
+            green_line.set_value(0)
+            red_line.set_value(1)
             print("off track")
-except KeyboardInterrupt:
-    GPIO.cleanup()
+finally:
+    ir_line.release()
+    green_line.release()
+    red_line.release()

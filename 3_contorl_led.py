@@ -13,8 +13,7 @@ button_line.request(consumer="Button", type=gpiod.LINE_REQ_DIR_IN)
 
 try:
     while True:
-        button_state = button_line.get_value()
-        if button_state == 1:
+        if button_line.get_value() == 1:
             led_line.set_value(1)
         else:
             led_line.set_value(0)

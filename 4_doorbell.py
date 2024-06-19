@@ -1,21 +1,23 @@
 # doorbell
 
-import RPi.GPIO as GPIO
+import gpiod
 import time
 
 touch_pin = 5
 buzzer_pin = 6
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(buzzer_pin, GPIO.OUT)
-GPIO.setup(touch_pin, GPIO.IN)
+chip = gpiod.Chip('gpiochip4')
+
+buzzer_line = chip.get_line(buzzer_pin)
+touch_line = chip.get_line(touch_pin)
 
 try:
     while True:
-        if(GPIO.input(touch_pin) == 1):
-            GPIO.output(buzzer_pin, GPIO.HIGH)
+        if touch_line.get_value() == 1:
+            buzzer_line.set_value(1)
             time.sleep(3)
         else:
-            GPIO.output(buzzer_pin, GPIO.LOW)
-except KeyboardInterrupt:
-    GPIO.cleanup()
+            buzzer_line.set_value(0)
+finally:
+    touch_line.release()
+    buzzer_line.release()

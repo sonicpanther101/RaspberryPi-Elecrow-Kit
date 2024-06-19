@@ -3,13 +3,13 @@
 import spidev
 import time
 import sys
-import RPi.GPIO as GPIO
+import gpiod
 
-GPIO.setmode(GPIO.BCM)
+chip = gpiod.Chip('gpiochip4')
 buzzer_pin = 5
 led_pin = 6
-GPIO.setup(buzzer_pin, GPIO.OUT)
-GPIO.setup(led_pin, GPIO.OUT)
+led_line = chip.get_line(led_pin)
+buzzer_line = chip.get_line(buzzer_pin)
 
 
 spi = spidev.SpiDev()
@@ -25,12 +25,12 @@ try:
         while True:
             value = readadc(0)
             if(value<300):
-                GPIO.output(buzzer_pin, GPIO.HIGH)
-                GPIO.output(led_pin, GPIO.LOW)
+                buzzer_pin.set_value(1)
+                led_pin.set_value(0)
             else:
-                GPIO.output(buzzer_pin, GPIO.LOW)
-                GPIO.output(led_pin, GPIO.HIGH)
+                buzzer_pin.set_value(0)
+                led_pin.set_value(1)
 
-except KeyboardInterrupt:
-        GPIO.cleanup()
-    
+finally:
+    led_line.release()
+    buzzer_line.release()

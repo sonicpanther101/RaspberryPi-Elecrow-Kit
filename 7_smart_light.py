@@ -10,6 +10,9 @@ chip = gpiod.Chip('gpiochip4')
 led_line = chip.get_line(led_pin)
 pir_line = chip.get_line(pir_pin)
 
+led_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+pir_line.request(consumer="Button", type=gpiod.LINE_REQ_DIR_IN)
+
 try:
     while True:
         if pir_line.get_value() == 1:

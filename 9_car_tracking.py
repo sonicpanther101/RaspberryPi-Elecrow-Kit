@@ -13,6 +13,10 @@ ir_line = chip.get_line(ir_pin)
 green_line = chip.get_line(green_pin)
 red_line = chip.get_line(red_pin)
 
+ir_line.request(consumer="Button", type=gpiod.LINE_REQ_DIR_IN)
+green_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+red_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
 
 try:
     while True:

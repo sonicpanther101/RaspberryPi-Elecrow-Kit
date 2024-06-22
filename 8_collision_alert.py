@@ -13,8 +13,13 @@ collision_line = chip.get_line(collision_pin)
 buzzer_line = chip.get_line(buzzer_pin)
 led_line = chip.get_line(led_pin)
 
+collision_line.request(consumer="Button", type=gpiod.LINE_REQ_DIR_IN)
+buzzer_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+led_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
 try:
     while True:
+        print(collision_line.get_value())
         if collision_line.get_value() == 0:
             buzzer_line.set_value(1)
             led_line.set_value(1)

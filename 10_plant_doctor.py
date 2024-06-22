@@ -11,6 +11,8 @@ led_pin = 6
 led_line = chip.get_line(led_pin)
 buzzer_line = chip.get_line(buzzer_pin)
 
+buzzer_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+led_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
 
 spi = spidev.SpiDev()
 spi.open(0,0)
@@ -25,11 +27,11 @@ try:
         while True:
             value = readadc(0)
             if(value<300):
-                buzzer_pin.set_value(1)
-                led_pin.set_value(0)
+                buzzer_line.set_value(1)
+                led_line.set_value(0)
             else:
-                buzzer_pin.set_value(0)
-                led_pin.set_value(1)
+                buzzer_line.set_value(0)
+                led_line.set_value(1)
 
 finally:
     led_line.release()

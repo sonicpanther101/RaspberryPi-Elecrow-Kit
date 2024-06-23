@@ -1,18 +1,31 @@
 import spidev
 import time
 import sys
-import RPi.GPIO as GPIO
+import gpiod
 
-GPIO.setmode(GPIO.BCM)
-motor_pin = 12
-GPIO.setup(motor_pin, GPIO.OUT)
+chip = gpiod.Chip('gpiochip4')
+motor_pin = 5
+motor_line = chip.get_line(motor_pin)
+
+motor_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
 
 spi = spidev.SpiDev()
 spi.open(0,0)
 spi.max_speed_hz = 1000000
 
-pwm = GPIO.PWM(motor_pin,80)
-pwm.start(0)
+def dimmer(output_line, brightness_percent):
+    hz = 1/10000
+    
+    brightness = brightness_percent/100
+    
+    brightness =0
+    
+    if brightness != 0:
+        output_line.set_value(1)
+        time.sleep(hz*brightness)
+    if brightness != 1:
+        output_line.set_value(0)
+        time.sleep(hz*(1-brightness))
 
 def readadc(adcnum):
 	r = spi.xfer2([1,8+adcnum<<4,0])
@@ -26,8 +39,7 @@ try:
         while True:
             value = readadc(0)
             brightness = brightness_func(value)
-            pwm.ChangeDutyCycle(brightness)
-            time.sleep(0.1)
+            dimmer(motor_line, brightness)
 
-except KeyboardInterrupt:
-        GPIO.cleanup()
+finally:
+    motor_line.release()

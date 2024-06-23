@@ -4,10 +4,11 @@
 # author: Tony
 # http://elecrow.com/
 
-import RPi.GPIO as GPIO
+import gpiod
 import time
 
-servo_pin = 12
+servo_pin = 5
+servo_line=""
 fpwm = 50
 
 ''' The a and b variables reflect the relationship
@@ -17,24 +18,37 @@ fpwm = 50
 a = 45
 b = 18.0
 
+def dimmer(output_line, brightness_percent):
+    hz = 1/80
+    
+    brightness = brightness_percent/100
+    
+    brightness =0
+    
+    if brightness != 0:
+        output_line.set_value(1)
+        time.sleep(hz*brightness)
+    if brightness != 1:
+        output_line.set_value(0)
+        time.sleep(hz*(1-brightness))
+
 def setup():
-    global pwm
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(servo_pin, GPIO.OUT)
-    pwm = GPIO.PWM(servo_pin, fpwm)
-    pwm.start(2.5)
+    global pwm, servo_line
+    chip = gpiod.Chip('gpiochip4')
+    servo_line = chip.get_line(servo_pin)
+    servo_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
 
 def setDirection(direction):
     duty = (direction + a)/b
-    pwm.ChangeDutyCycle(duty)
-    print "direction =", direction, "-> duty =", duty
-    time.sleep(1) 
+    dimmer(servo_line,duty)
+    print("direction =", direction, "-> duty =", duty)
+    #time.sleep(1) 
    
-print "starting"
+print("starting")
 setup()
-for direction in range(0, 181, 90):
+for direction in range(0, 181, 1):
     setDirection(direction)    
 setDirection(0)    
-GPIO.cleanup() 
-print "done"
+servo_line.release() 
+print("done")
     
